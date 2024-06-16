@@ -3,16 +3,42 @@
 #include <stdio.h>		// perror(), stderr
 #include <stdlib.h>		// exit(), EXIT_FAILURE
 #include <unistd.h>		// close()
+#include <string.h>		// memset()
+
+#define PORT 8080
 
 int	main(int argc, char const *argv[])
 {
 	int	server_socket;
+	int	randomPORT = PORT;
+	struct sockaddr_in	server_address;
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_socket <= 0)
 	{
 		perror("error in socket: ");
 		exit(EXIT_FAILURE);
+	}
+
+	// set SO_REUSEADDR to allow reuse of local addresses
+	// int	yes = 1;
+	// if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+	// {
+	// 	perror("setsockopt");
+	// 	close(server_socket);
+	// 	exit(EXIT_FAILURE);
+	// }
+
+	randomPORT = 8080 + (rand() % 10);	// generate a random port btw 8080 & 8090 to avoid scenarios where 8080 is busy
+	memset(&server_address, 0, sizeof(server_address));
+	server_address.sin_family = AF_INET;
+	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	server_address.sin_port = htons(randomPORT);
+
+	while (bind(server_socket, (struct sockaddr *)&server_address,sizeof(server_address)) < 0)
+	{
+		randomPORT = 8080 + (rand() % 10);
+		server_address.sin_port = htons(randomPORT);
 	}
 
 	close(server_socket);

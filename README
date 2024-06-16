@@ -1,48 +1,50 @@
 
 ==== What is HTTP ? ====
-    Hypertext Tranfer Protocol. this is a standard of application layer communication protocol for transmitting
+	Hypertext Tranfer Protocol. this is a standard of application layer communication protocol for transmitting
 hyper media documents such as html, pdf, jpg etc. between two or more networks, where one is the master or
 server and th rest are clients or slave.
-    HTTP is everywhere! Every website we visit on the internet is ran on HTTP server. You may think, then what
+	HTTP is everywhere! Every website we visit on the internet is ran on HTTP server. You may think, then what
 about HTTPS servers. Technically, HTTPS is same as HTTP but with more security. Many programmers at some
 point or the other may get curious about how HTTP servers work and how to build one from the scratch without
 any external libraries.
-    The diference between http server or web server and other servers is that http or web server follow some
+	The diference between http server or web server and other servers is that http or web server follow some
 standard rules or protocols in their implementation. The http server default port is 8080 or 80, but other ports
 can be used. So when www.websiteName.com is typed, the client which is the web browser will automatically add
 the port to it, so it becomes www.websiteName.com:8080. When connecting on a different port, one must specify
 the port value otherwise the default port is assumed. Other servers which are not standard like the http server
 will use a different port of their choice, therefore you as the client must add the port value while connecting
 to the server e.g Chat servers etc.
-    Other servers follow similar method of design as the http server but without the strict rules.
+	Other servers follow similar method of design as the http server but without the strict rules.
+
 
 
 ==== What is a Socket? ====
-    A socket is the mechanism that most popular operating systems provide to give programs access to the network.
+	A socket is the mechanism that most popular operating systems provide to give programs access to the network.
 It allows messages to be sent and received between applications (unrelated processes) on thesame or different
 networked machines. The sockets mechanism has been created to be independent of any specific type of network. IP
 addressing, however, is by far the most dominant network and the most popular use of sockets.
-    Programming with TCP/IP sockets. There are a few steps involved in using sockets in design of this server:
-    1. Create the socket.
-    2. Identify the socket.
-    3. On the server, wait for an incoming connection.
-    4. Send and receive messages.
-    5. Close the socket.
+	Programming with TCP/IP sockets. There are a few steps involved in using sockets in design of this server:
+	1. Create the socket.
+	2. Identify the socket.
+	3. On the server, wait for an incoming connection.
+	4. Send and receive messages.
+	5. Close the socket.
+
 
 ** Step 1: Create the Socket <<----------
-    There are several kinds of sockets but there are two major and most commonly used ones: One is "Stream Sockets",
+	There are several kinds of sockets but there are two major and most commonly used ones: One is "Stream Sockets",
 the other is "Datagram Sockets". They may here after be referred to as "SOCK_STREAM" and "SOCK_DGRAM", respectively.
 Datagram sockets are sometimes called "connectionless sockets". Stream sockets are reliable two-way connected
 communication streams, this means that the server and client stay connected throughout the transmission process. If
 you output two items into the socket in the order "1,2", they will arrive in the order "1,2" at the opposite end.
-    Datagram Sockets, why are they connectionless? It's because you don't have to maintain an open connection as you
+	Datagram Sockets, why are they connectionless? It's because you don't have to maintain an open connection as you
 do with Stream sockets. You just build a packet, slap an IP header on it with destination information, and send it
 out. No connection needed. They are generally used either when a TCP stack is unavailable or when a few dropped
 packets doesn't constitute much errors. Sample applications include, tftp (trivial file transfer protocol, a little
 brother to FTP), dhcpcd (a DHCP client), multiplayer games, streaming audio, video conferencing, etc. Datagram also
 use IP for routing, but they don't use TCP; they use the "User Datagram Protocol", or "UDP"(see RFC7685).
 
-    To create the socket (system call to socket):    int server_fd = socket(domain, type, protocol);
+	To create the socket (system call to socket):    int server_fd = socket(domain, type, protocol);
 =="domain", also referred to as the address family - is the communication domain in which the socket should be created.
 Some of address families includes AF_INET (IP), AF_INET6 (IPv6), AF_UNIX (local channel, similar to pipes), AF_ISO
 (ISO protocols), and AF_NS (Xerox Network Systems protocols). AF_INET and AF_INET6 are most common.
@@ -52,19 +54,20 @@ SOCK_RAW (for direct IP service). Check with your address family to see whether 
 =="protocol", indicates a specific protocol to use in supporting the sockets operation. This is useful in cases where
 some families may have more than one protocol to support a given type of service. The return value is a file descriptor
 (a small integer). The analogy of creating a socket is that of requesting a telephone line from the phone company.
-    For TCP/IP sockets, we will want to specify the IP address family (AF_INET) and virtual circuit service (SOCK_STREAM).
+	For TCP/IP sockets, we will want to specify the IP address family (AF_INET) and virtual circuit service (SOCK_STREAM).
 Since there's only one form of virtual circuit service, there are no variations of the protocol, so the last argument (the
 procotol) will be written as zero (0).
 
+
 ** Step 2: Identify the Socket <<----------
-    In sockets, this operation is called binding an address and the bind system call is used for this. Once you have a
+	In sockets, this operation is called binding an address and the bind system call is used for this. Once you have a
 socket, you might have to associate that socket with a port on your local machine. (This is commonly done if you're going
 to listen() for incoming connections on a specific port. Multiplayer network games like GTA for example do this when they
 tell you to "connect to 192.168.5.10 port 3490".) The port number is used by the kernel to match an incoming packet to a
-certain process's socket descriptor. If you're going to only be doing a connect() (because you're the client, not server),
+certain process's socket descriptor. If you're going to only be doing a connect() (becausecos you are client, not server),
 this is probably be unnecesary.
 
-    To Identify the socket (system call to bind):   int bind(int sockfd, struct sockaddr *my_addr, socklen_t addrlen);
+	To Identify the socket (system call to bind):   int bind(int sockfd, struct sockaddr *my_addr, socklen_t addrlen);
 =="sockfd", the first parameter, is the socket that was created with the socket system call, the socket file descriptor
 returned by socket() function after the sockect was created.
 =="my_addr", is a pointer to a struct sockaddr that contains information about your address, namely, port and IPaddress.
@@ -72,19 +75,19 @@ It is a generic container that just allows the OS to be able to read the first c
 family. So the address family determines what variant of the sockaddr struct to use that contains elements that make
 sense for that specific communication type. For IP networking, we use struct sockaddr_in, which is defined in the header
 netinet/in.h. we would also include this header. This structure defines:
-    struct  sockaddr_in
-    {
-    _uint8_t        sin_len;
-    sa_family_t     sin_family; // address family used when setting up the socket e.g. AF_INET
-    in_port_t       sin_port;   // port number intented to be used for transmission e.g. for HTTP is 8080
-    struct in_addr  sin_addr;   // address for the socket or IP address for short
-    char            sin_zero[8];
-    };
+	struct  sockaddr_in
+	{
+	_uint8_t        sin_len;
+	sa_family_t     sin_family; // address family used when setting up the socket e.g. AF_INET
+	in_port_t       sin_port;   // port number intented to be used for transmission e.g. for HTTP is 8080
+	struct in_addr  sin_addr;   // address for the socket or IP address for short
+	char            sin_zero[8];
+	};
 Before calling the bind() function, this struct members has to be filled. Perhaps not everything but the very important
 ones like the "sin_family", "sin_port" and "sin_addr". The "sin_family" which is the address family used when setting up
 the socket e.g. AF_INET. The "sin_port" which is port number intented to be used for transmission e.g. for HTTP is 8080.
 You may assign a port or allow the OS to assign one for you especially if it is not an HTTP server because for HTTP server,
-clients often connects to port 8080. If you're the client and won't be recieving incoming connections, you'll usually just
+clients often connects to port 8080. If you are the client and won't be recieving incoming connections, you'll usually just
 let the OS pick any available port number but if you're the server you'll have to pick a specific number since the client
 will need a port number to connect to. The third is the "sin_addr" which is the address for the socket or  IP address.
 =="addrlen", is the length in byte the address as identified by "sin_addr" of the "struct sockaddr_in" (socket/IP address).
@@ -92,17 +95,80 @@ So since the address struct differs based on the type of Transport used, the thi
 of that structure (because assuming you're doing a different type of Networking on Linux that is not Socket Programming,
 the address will be quit different, so you'll need to specify the length/size of the address through "addrlen" so that the
 Kernel will be able to know from the size of the address and be able to read the particular byte containing the address).
-    The final code for the socket will look like this;
-        #include <sys/socket.h>
-        struct sockaddr_in address;
-        const int PORT = 8080;
-        memset((char *)&address, 0, sizeof(address));
-        address.sin_family = AF_INET;
-        address.sin_addr.s_addr = htonl(INADDR_ANY); // INADDR_ANY mean the Kernal gets to choose any address for you
-        address.sin_port = htons(PORT);
-        // htonl converts a long integer (e.g. address) to a network representation
-        // htons converts a short integer (e.g. port) to a network representation
-        if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-        {
-            perror("bind failed"); return 0;
-        }
+	The final code for the socket will look like this;
+		#include <sys/socket.h>
+		struct sockaddr_in address;
+		const int PORT = 8080;
+		memset((char *)&address, 0, sizeof(address));
+		address.sin_family = AF_INET;
+		address.sin_addr.s_addr = htonl(INADDR_ANY); // INADDR_ANY mean the Kernal gets to choose any address for you
+		address.sin_port = htons(PORT);
+		// htonl converts a long integer (e.g. address) to a network representation
+		// htons converts a short integer (e.g. port) to a network representation
+		if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+		{
+			perror("bind failed"); return 0;
+		}
+
+	The htons() AND htonl(): Your computer stores numbers in Host Byte Order. If it's an Intel 80x86, Host Byte Order is
+Little-Endian. If it's a Motorola 68k, Host Byte Order is Big-Endian. If it's a PowerPC, Host Byte Order is... well, it
+depends! A lot of times when you're building packets or filling out data structures, you'll need to make sure your two-
+and four-byte numbers which are your IP address and Port are in Network Byte Order. But how can you do this if you don't
+know the native Host Byte Order ?
+	There are two types of numbers that you can convert: short (two bytes) used for port numbers and long (four bytes)
+used for IP ADDRESS. These functions work for the unsigned variations as well. Say you want to convert a short from Host
+Byte Order to Network Byte Order. Start with "h" for "host", follow it with "to", then "n" for "network", and "s" for
+"short": h-to-n-s, or htons() (read as: "HostTONetworkShort"). It is almost too easy. You can use every combination of
+"n","h","s", and "l" you want, but there is NOT a stolh() ("Short to LongHost"). These are the 4 variations used to
+store Port or IP address on Host Network;
+			Function Description
+		htons() host to network short
+		htonl() host to network long
+		ntohs() network to host short
+		ntohl() network to host long
+
+	Another thing to watch out for when calling bind(): Don not go underboard with port numbers. All ports below 1024 are
+RESERVED (unless you are the superuser)! You can have any port number above that, right upto 65535 (so long they aren't
+already being used by another program). Sometimes, you might notice, you try to rerun a server and bind() fails, claiming
+"Address already in use." What does that mean ? Even it's fixed by using random port. Well, a little bit of a socket that
+was connected is still hanging around in the kernel, and it is hogging the port. You can either wait for it to clear or
+try a standard way of doing that;
+		int yes = 1; // char yes = '1';
+		if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
+		{
+			perror("setsockopt");
+			exit(1);
+		}
+The `setsockopt` function is used to configure socket options. In the provided code snippet, `setsockopt` is being used to
+allow the socket to reuse a local address, which is particularly useful when restarting a server.
+## Detailed Breakdown
+   - `int yes = 1: This variable is used to enable the `SO_REUSEADDR` option.
+   - if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof yes) == -1)
+	 `setsockopt()`: This function is used to set options on sockets.
+		Parameters :
+	   - `listener`: The socket file descriptor on which to set the option.
+	   - `SOL_SOCKET`: This specifies that the option is being set at the socket level.
+	   - `SO_REUSEADDR`: This option allows the socket to reuse the local address.
+	   - `&yes`: A pointer to the value to be set. In this case, it points to the integer `yes` which is `1`.
+	   - `sizeof(yes)`: Since `yes` is an `int`, this will be `sizeof(int)`, which typically is 4 bytes on most systems.
+	 - Return Value: `setsockopt` returns `0` on success and `-1` on failure.
+	- Error Handling:
+	{
+		perror("setsockopt");
+		exit(1);
+	}
+   - If `setsockopt` fails (i.e., returns `-1`), the `perror` function prints an error message to `stderr`, and `exit(1)`
+   terminates the program with an exit status of `1`.
+The `SO_REUSEADDR` option allows a socket to bind to a port which is in a `TIME_WAIT` state after the socket has been closed.
+This is useful in the following scenarios:
+- Server Restarts: If a server needs to be restarted, enabling `SO_REUSEADDR` allows the new instance of the server to bind
+to the same port without waiting for the old socket to time out.
+- Port Reuse: It allows multiple instances of a socket application to bind to the same port for incoming connections, provided
+that the IP addresses differ.
+
+	One small extra final note about bind(): there are times when you won't absolutely have to call it. If you are the client
+connecting to a server at a remote machine you don't need to care what your local port is, you can simply call connect(). So
+while the server calls the bind(), the client calls the connect(). The client will automatically, check to see if the socket
+is unbound, and will bind() it to an unused local port if necessary.
+
+
