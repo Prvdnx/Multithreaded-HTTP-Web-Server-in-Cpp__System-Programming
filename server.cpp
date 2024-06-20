@@ -15,6 +15,7 @@ int	main(int argc, char const *argv[])
 	struct sockaddr_in	server_address;
 	int	client_socket;
 	struct sockaddr_in	client_address;
+	char	ip4[INET_ADDRSTRLEN];
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);	// socket creation
 	if (server_socket <= 0)
@@ -64,7 +65,9 @@ int	main(int argc, char const *argv[])
 		}
 		else
 		{
-			
+			inet_ntop(AF_INET, &(client_address.sin_addr), ip4, INET_ADDRSTRLEN);
+			//printf("Connected to %s \n", ip4);
+			std::cout << "Connected to " << ip4 << std::endl;
 		}
 	}
 
