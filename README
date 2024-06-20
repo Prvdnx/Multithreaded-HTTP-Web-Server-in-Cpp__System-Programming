@@ -236,8 +236,12 @@ The arguments are simple: host name is a pointer to an array of chars that will 
 and size is the length in bytes of the host name array. The function returns 0 on successful completion, and -1 on error,
 setting errno as usual.
 
+=> getaddrinfo():
 
 
-
-
+** Step 4: Send and receive messages <<----------=====
+We finally have connected sockets between a client(when you visit IP address of your server from a web browser) and a server!
+Communication is the easy part. The same read and write system calls that work on files also work on sockets. send(), recv(),
+read() and write(). These four functions are for communicating over stream sockets or connected datagram sockets. If you want
+to use regular unconnected datagram sockets, read about sendto() and recvfrom().
 
