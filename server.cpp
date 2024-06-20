@@ -4,6 +4,7 @@
 #include <stdlib.h>		// exit(), EXIT_FAILURE
 #include <unistd.h>		// close()
 #include <string.h>		// memset()
+#include <iostream>
 
 #define PORT 8080
 
@@ -12,8 +13,10 @@ int	main(int argc, char const *argv[])
 	int	server_socket;
 	int	randomPORT = PORT;
 	struct sockaddr_in	server_address;
+	int	client_socket;
+	struct sockaddr_in	client_address;
 
-	server_socket = socket(AF_INET, SOCK_STREAM, 0);
+	server_socket = socket(AF_INET, SOCK_STREAM, 0);	// socket creation
 	if (server_socket <= 0)
 	{
 		perror("error in socket: ");
@@ -35,10 +38,34 @@ int	main(int argc, char const *argv[])
 	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_address.sin_port = htons(randomPORT);
 
-	while (bind(server_socket, (struct sockaddr *)&server_address,sizeof(server_address)) < 0)
+	while (bind(server_socket, (struct sockaddr *)&server_address, sizeof(server_address)) < 0)	// bind
 	{
 		randomPORT = 8080 + (rand() % 10);
 		server_address.sin_port = htons(randomPORT);
+	}
+
+	if (listen(server_socket, 10) < 0)	// listem
+	{
+		perror("error in listen: ");
+		exit(EXIT_FAILURE);
+	}
+
+	while (1)
+	{
+		socklen_t len = sizeof(client_address);
+		//printf("Listening port: %d \n", randomPORT);
+		std::cout << "Listening port: " << randomPORT << std::endl;
+		client_socket = accept(server_socket, (struct  sockaddr *)&client_address, &len);
+
+		if (client_socket < 0)
+		{
+			perror("Unable to accept connection: ");
+			return (0);
+		}
+		else
+		{
+			
+		}
 	}
 
 	close(server_socket);
