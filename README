@@ -199,14 +199,13 @@ from client. The client_socket will be used to send and recieve data between the
 allows us to examine the address and port number of the connecting socket if we want to.
 =='len', the third parameter is filled in with the length of the address structure.
 
-
-What if you want to manipulate an IP address, example you want to print the ip address of the client and use it for some
+What if you want to manipulate an IP address? For example you want to print the ip address of the client and use it for some
 function maybe for promiscious mode scan, or store the server address etc. Fortunately for you, there are a bunch of functions
 that allow you to manipulate IP addresses. Given an IPaddress "10.12.110.57" or "2001:db8:63b3:1::3490" and you intend to
 store into it. The function to use, inet_pton(), it converts an IP address in numbers-and-dots notation into either a struct
 in_addr or a struct in6_addr depending on whether you specify AF_INET or AF_INET6. ("pton" stands for "presentation to network"
 or "printable to network". The conversion can be made as follows:
-		struct sockaddr in server address;
+		struct sockaddr_in server_address;
 		inet_pton(AF_INET, "10.12.110.57", &(server_address.sin_addr));
 To print a struct in_addr in numbers and dots, we use the function inet_ntop() ("ntop" means "network to presentation" or
 "network to printable"). This is how it is done;
