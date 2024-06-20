@@ -172,5 +172,7 @@ while the server calls the bind(), the client calls the connect(). The client wi
 is unbound, and will bind() it to an unused local port if necessary.
 
 
-** Step 3: Listen for incoming Connection <<----------
+** Step 3: Listen for an Incoming Connection <<----------
 This is done in two steps, first you listen() and then you accept().
+
+
