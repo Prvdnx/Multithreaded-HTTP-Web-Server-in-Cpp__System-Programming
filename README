@@ -175,4 +175,12 @@ is unbound, and will bind() it to an unused local port if necessary.
 ** Step 3: Listen for an Incoming Connection <<----------
 This is done in two steps, first you listen() and then you accept().
 
+	To Listen (system call to listen):		#include <sys/socket.h>
+										int listen(int sockfd, int backlog);
+=='sockfd' is the usual socket file descriptor from the socket() system call.
+=='backlog', the second parameter, defines the maximum number of pending connections that can be queued up before connections
+are refused. What does that mean? Incoming connections are going to wait in this queue until you accept() them, and this is the
+limit on how many can queue up. Most systems silently limit this number to about 20; you can probably get away with setting it
+to 5 or 10.
+
 
