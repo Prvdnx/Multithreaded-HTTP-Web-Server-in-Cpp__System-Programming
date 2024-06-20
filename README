@@ -219,3 +219,25 @@ To print a struct in_addr in numbers and dots, we use the function inet_ntop() (
 		inet_ntop(AF_INET6, &(sa6.sin6_addr), ip6, INET6_ADDRSTRLEN);
 		printf("The address is: %s\n", ip6);
 
+=> getpeername(): The function getpeername() will tell you who is at the other end of a connected stream socket.
+						#include <sys/socket.h>
+		int getpeername(int sockfd, struct sockaddr *addr, int *addrlen);
+'sockfd' is the descriptor of the connected stream socket, 'addr' is a pointer to a struct sockaddr (or a struct sockaddr_in)
+that will hold the information about the other side of the connection, and 'addrlen' is a pointer to an int, that should be
+initialized to sizeof(*addr) or sizeof(struct sockaddr). The function returns -1 on error and sets errno accordingly. Once you
+have their address, you can use inet_ntop(), getnameinfo(), or gethostbyaddr() to print or get more information. No, you cannot
+get their login name.
+
+=> gethostname(): Easier than getpeername(), the gethostname() function returns the name of the computer that your program is
+running on. The name can then be used by gethostbyname(), to determine the IP address of your localmachine.
+					#include <unistd.h>
+		int gethostname(char *hostname, size_t size);
+The arguments are simple: host name is a pointer to an array of chars that will contain the host name upon the function return,
+and size is the length in bytes of the host name array. The function returns 0 on successful completion, and -1 on error,
+setting errno as usual.
+
+
+
+
+
+
