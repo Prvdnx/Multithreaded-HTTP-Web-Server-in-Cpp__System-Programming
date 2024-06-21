@@ -7,12 +7,18 @@
 #include <iostream>
 #include <semaphore.h>	// sem_t()
 #include <pthread.h>	// pthread()
+#include "server.hpp"
 
 #define PORT 8080
+#define client_message_SIZE 1024
+sem_t 	mutex;
 
 void	*connection_handler(void *socket_desc)
 {
-	;
+	int	newSock = *((int *)socket_desc);
+	char	client_message[client_message_SIZE];
+	int	request = read(newSock, client_message, client_message_SIZE);
+	std::string	message = client_message;
 }
 
 int	main(int argc, char const *argv[])
@@ -24,6 +30,7 @@ int	main(int argc, char const *argv[])
 	struct sockaddr_in	client_address;
 	char	ip4[INET_ADDRSTRLEN];
 	int	*thread_sock;
+	sem_init(&mutex, 0, 1);
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);	// socket creation
 	if (server_socket <= 0)
