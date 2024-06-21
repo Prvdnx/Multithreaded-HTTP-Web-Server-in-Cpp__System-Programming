@@ -10,6 +10,11 @@
 
 #define PORT 8080
 
+void	*connection_handler(void *socket_desc)
+{
+	;
+}
+
 int	main(int argc, char const *argv[])
 {
 	int	server_socket;
@@ -18,6 +23,7 @@ int	main(int argc, char const *argv[])
 	int	client_socket;
 	struct sockaddr_in	client_address;
 	char	ip4[INET_ADDRSTRLEN];
+	int	*thread_sock;
 
 	server_socket = socket(AF_INET, SOCK_STREAM, 0);	// socket creation
 	if (server_socket <= 0)
@@ -70,6 +76,15 @@ int	main(int argc, char const *argv[])
 			inet_ntop(AF_INET, &(client_address.sin_addr), ip4, INET_ADDRSTRLEN);
 			//printf("Connected to %s \n", ip4);
 			std::cout << "Connected to " << ip4 << std::endl;
+		}
+		pthread_t	multi_thread;
+		thread_sock = new int();	// to be used as pointer to client socket
+		*thread_sock = client_socket; // each thread/client will have it's own unique client socket to communicate with the server
+
+		if (pthread_create(&multi_thread, NULL, connection_handler, (void*)thread_sock) > 0)
+		{
+			perror("Could not create thread ");
+			return (0);
 		}
 	}
 
