@@ -3,8 +3,10 @@
 #include <stdio.h>		// perror(), stderr
 #include <stdlib.h>		// exit(), EXIT_FAILURE
 #include <unistd.h>		// close()
-#include <string.h>		// memset()
+#include <string>		// memset()
 #include <iostream>
+#include <semaphore.h>	// sem_t()
+#include <pthread.h>	// pthread()
 
 #define PORT 8080
 
