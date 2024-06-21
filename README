@@ -245,3 +245,36 @@ Communication is the easy part. The same read and write system calls that work o
 read() and write(). These four functions are for communicating over stream sockets or connected datagram sockets. If you want
 to use regular unconnected datagram sockets, read about sendto() and recvfrom().
 
+	The send() call:	int send(int sockfd, const void *msg, int len, int flags);
+'sockfd' is the socket descriptor you want to send data to (whether it is the one returned by socket() or the one you got with
+accept()). 'msg' is a pointer to the data you want to send. 'len' is the length of that data in bytes. Just set 'flags' to 0.
+Sample code:
+		char *msg = "Beej was here!";
+		int len, bytes_sent;
+		len = strlen(msg);
+		bytes_sent = send(sockfd, msg, len, 0);	// send call
+
+char buffer[1024] = {0};
+int valread = read(new_socket, buffer, 1024);	// read
+printf("%s\n", buffer);
+if(valread < 0) { printf("No bytes are there to read"); }
+
+char *hello = "Hello from the server";	// IMPORTANT!
+write(new_socket, hello, strlen(hello));	// write
+
+	The recv() call:	int recv(int sockfd, void *buf, int len, int flags);
+'sockfd' is the socket descriptor to read from. 'buf' is the buffer to read the information into. 'len' is the maximum length
+of the buffer. 'flags' can again be set to 0.
+recv() returns the number of bytes actually read into the buffer, or -1 on error (with errno set, accordingly). recv() can
+return 0. This can only mean the remote side has closed the connection on you! So, this is how data is passed between networks
+on Unix.
+
+==> sendto() and recvfrom():
+The sendto() and recvfrom() are used for UDP transmission. Since datagram sockets are not connected to a remote host, the
+destination address is the only piece of information we need to give before we send a packet.
+	int sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen);
+'*to' is a pointer to a struct sockaddr which contains the destination IP address and port. 'tolen', an int, can simply be set
+to sizeof(*to) or sizeof(struct sockaddr_storage). To get hands on the destination address structure, you'll probably either
+get it from getaddrinfo(), or from recvfrom(), or you'll fill it out by hand. Just like with send(), sendto() returns the
+number of bytes actually sent.
+
