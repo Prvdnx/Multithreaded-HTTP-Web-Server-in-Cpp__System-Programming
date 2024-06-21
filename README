@@ -272,9 +272,36 @@ on Unix.
 ==> sendto() and recvfrom():
 The sendto() and recvfrom() are used for UDP transmission. Since datagram sockets are not connected to a remote host, the
 destination address is the only piece of information we need to give before we send a packet.
-	int sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen);
+	- int sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen);
 '*to' is a pointer to a struct sockaddr which contains the destination IP address and port. 'tolen', an int, can simply be set
 to sizeof(*to) or sizeof(struct sockaddr_storage). To get hands on the destination address structure, you'll probably either
 get it from getaddrinfo(), or from recvfrom(), or you'll fill it out by hand. Just like with send(), sendto() returns the
 number of bytes actually sent.
+	- int recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, int *fromlen);
+This is just like recv() with the addition of a couple fields. 'from' is a pointer to a local 'struct sockaddr_storage' that
+will be filled with the IP address and port of the originating machine. 'fromlen' is a pointer to a local int that should be
+initialized to sizeof(*from). When the function returns, fromlen will contain the length of the address actually stored in it.
+
+
+** Step 5: Close the socket <<----------=====
+Socket can be closed/disconnected using a regular unix file descriptor function call 'close()'
+			close(new_socket);
+This will prevent all reads and writes to the socket. Any attempt to read or write to the socket after this should generate
+an error.
+If you want more control over how the socket closes, you can use a shutdown() function. This allows to cut off communication
+in a certain direction or both ways
+			int shutdown(int sockfd, int how);
+'sockfd' is the socket descriptor you wantvto shutdown. The value of 'how' depends on where you want to control/shutdown.
+		0 = Further receives are disallowed
+		1 = Further sends are disallowed
+		2 = Further sends and receives are disallowed (like close())
+shutdown() returns 0 on success and -1 on error (with errno set accordingly). If you use shutdown() on unconnected datagram
+sockets, it will simply make the socket unavailable for further send() and recv() calls. It is important to note that shutdown()
+does not actually close the file descriptor, it just changes its usability. To free a socket descriptor, you need to use close().
+(Except you are using Windows and Winsock, you should call closesocket() instead of close().)
+
+
+
+
+
 
