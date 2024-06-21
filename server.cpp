@@ -12,6 +12,23 @@
 #define PORT 8080
 #define client_message_SIZE 1024
 sem_t 	mutex;
+int	thread_count = 0;
+
+std::string getStr(std::string sql, char end)
+{
+	int	counter = 0;
+	std::string retStr = "";
+
+	while (sql[counter] != '\0')
+	{
+		if (sql[counter] == end)
+			break;
+		retStr += sql[counter];
+		counter++;
+	}
+
+	return (retStr);
+}
 
 void	*connection_handler(void *socket_desc)
 {
@@ -19,6 +36,38 @@ void	*connection_handler(void *socket_desc)
 	char	client_message[client_message_SIZE];
 	int	request = read(newSock, client_message, client_message_SIZE);
 	std::string	message = client_message;
+	sem_wait(&mutex);
+	thread_count++;
+	// printf("Thread counter %d\n", thread_count);
+	std::cout << "Thread counter " << thread_count << std::endl;
+	if (thread_count > 20)
+	{
+		write(newSock, Messages[BAD_REQUEST].c_str(), Messages[BAD_REQUEST].length());
+		thread_count--;
+		close(newSock);
+		sem_post(&mutex);
+		pthread_exit(NULL);
+	}
+	sem_post(&mutex);
+
+	if (request < 0)
+ 		puts("Receive failed");
+	else if (request == 0)
+		puts("Client disconnected unexpectedly");
+	else
+	{
+		//std::cout << "Client message: " << client_message << std::endl;
+		std::string requestType = getStr(message, ' ');
+		message.erase(0, requestType.length()+1);
+		std::string	requestFile = getStr(message, ' ');
+
+		std::string requestF = requestFile;
+		std::string fileExt = requestF.erase(0, getStr(requestF, '.').length()+1);
+		std::string fileEx = getStr(getStr(fileExt, '/'), '?');
+		requestFile = getStr(requestFile, '.')+"."+fileEx;
+
+	}
+
 }
 
 int	main(int argc, char const *argv[])
